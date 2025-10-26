@@ -136,7 +136,7 @@ export class WebServer {
       const ipCheckResult = await this.checkIP(ipAddress);
       if (ipCheckResult.isProxy) {
         await this.logVerificationAttempt(discordId, ipAddress, session.guildId, session.roleId, false, 'proxy');
-        await this.logToWebhook(session, discordId, false, 'Verification failed: VPN/Proxy detected');
+        await this.logToWebhook(session, discordId, ipAddress, false, 'Verification failed: VPN/Proxy detected');
         return {
           success: false,
           reason: 'proxy',
@@ -155,7 +155,7 @@ export class WebServer {
 
       if (existingUser) {
         await this.logVerificationAttempt(discordId, ipAddress, session.guildId, session.roleId, false, 'alt_account');
-        await this.logToWebhook(session, discordId, false, `Verification failed: Alt account detected. Original account: ${existingUser.discordId}`);
+        await this.logToWebhook(session, discordId, ipAddress, false, `Verification failed: Alt account detected. Original account: ${existingUser.discordId}`);
         return {
           success: false,
           reason: 'alt_account',
@@ -183,7 +183,7 @@ export class WebServer {
       
       if (!roleGranted) {
         await this.logVerificationAttempt(discordId, ipAddress, session.guildId, session.roleId, false, 'role_error');
-        await this.logToWebhook(session, discordId, false, 'Verification failed: Unable to grant role');
+        await this.logToWebhook(session, discordId, ipAddress, false, 'Verification failed: Unable to grant role');
         return {
           success: false,
           reason: 'error',
@@ -228,7 +228,7 @@ export class WebServer {
       }
 
       await this.logVerificationAttempt(discordId, ipAddress, session.guildId, session.roleId, true, 'success');
-      await this.logToWebhook(session, discordId, true, 'Successfully verified');
+      await this.logToWebhook(session, discordId, ipAddress, true, 'Successfully verified');
 
       return {
         success: true,
@@ -338,7 +338,7 @@ export class WebServer {
     }
   }
 
-  private async logToWebhook(session: any, discordId: string, success: boolean, message: string) {
+  private async logToWebhook(session: any, discordId: string, ipAddress: string, success: boolean, message: string) {
     try {
       const webhookUrl = session.webhookUrl;
       if (!webhookUrl) return;
@@ -349,6 +349,7 @@ export class WebServer {
         description: message,
         fields: [
           { name: 'User', value: `${user.tag} (${discordId})`, inline: true },
+          { name: 'IP', value: ipAddress, inline: true },
           { name: 'Time', value: new Date().toISOString(), inline: true },
         ],
         color: success ? 0x00ff00 : 0xff0000,

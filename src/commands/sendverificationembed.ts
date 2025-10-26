@@ -110,9 +110,16 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     const row = new ActionRowBuilder<ButtonBuilder>()
       .addComponents(verifyButton);
 
+    if (interaction.channel && 'send' in interaction.channel) {
+      await interaction.channel.send({
+        embeds: [embed],
+        components: [row],
+      });
+    }
+
     await interaction.reply({
-      embeds: [embed],
-      components: [row],
+      content: 'Panel created',
+      flags: 64,
     });
 
     if (webhookUrl) {
@@ -143,9 +150,15 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
   } catch (e) {
     console.error('couldnt send/create verify panel:', e);
-    await interaction.reply({ 
-      content: 'An error occurred while creating the verification panel.', 
-      flags: 64
-    });
+    if (interaction.replied) {
+      await interaction.editReply({ 
+        content: 'An error occured!'
+      });
+    } else {
+      await interaction.reply({ 
+        content: 'An error occurred!', 
+        flags: 64
+      });
+    }
   }
 }
