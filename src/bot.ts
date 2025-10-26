@@ -92,6 +92,7 @@ export class VerificationBot {
           guildId: originalSession.guildId,
           channelId: originalSession.channelId,
           roleId: originalSession.roleId,
+          webhookUrl: originalSession.webhookUrl,
           expiresAt,
         },
       });

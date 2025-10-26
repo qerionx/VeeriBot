@@ -155,11 +155,11 @@ export class WebServer {
 
       if (existingUser) {
         await this.logVerificationAttempt(discordId, ipAddress, session.guildId, session.roleId, false, 'alt_account');
-        await this.logToWebhook(session, discordId, false, 'Verification failed: Alt account detected');
+        await this.logToWebhook(session, discordId, false, `Verification failed: Alt account detected. Original account: ${existingUser.discordId}`);
         return {
           success: false,
           reason: 'alt_account',
-          message: 'Verification failed: An account has already been verified from this IP address.',
+          message: 'We believe that you have already verified on another Discord account. If you think we made a mistake, make a ticket and explain your situation.',
         };
       }
 
@@ -191,14 +191,41 @@ export class WebServer {
         };
       }
       
-      await prisma.user.create({
-        data: {
-          discordId,
-          ipAddress,
-          guildId: session.guildId,
-          roleId: session.roleId,
+      const existingUserRecord = await prisma.user.findUnique({
+        where: {
+          discordId_guildId_roleId: {
+            discordId: discordId,
+            guildId: session.guildId,
+            roleId: session.roleId,
+          },
         },
       });
+
+      if (existingUserRecord) {
+        await prisma.user.update({
+          where: {
+            discordId_guildId_roleId: {
+              discordId: discordId,
+              guildId: session.guildId,
+              roleId: session.roleId,
+            },
+          },
+          data: {
+            ipAddress,
+            verifiedAt: new Date(),
+            updatedAt: new Date(),
+          },
+        });
+      } else {
+        await prisma.user.create({
+          data: {
+            discordId,
+            ipAddress,
+            guildId: session.guildId,
+            roleId: session.roleId,
+          },
+        });
+      }
 
       await this.logVerificationAttempt(discordId, ipAddress, session.guildId, session.roleId, true, 'success');
       await this.logToWebhook(session, discordId, true, 'Successfully verified');
@@ -358,7 +385,7 @@ export class WebServer {
             failureMessage += "VPN/Proxy detected. Please disable your VPN and try again.";
             break;
           case 'alt_account':
-            failureMessage += "An account has already been verified from this IP address.";
+            failureMessage += "We believe that you have already verified on another Discord account. If you think we made a mistake, make a ticket and explain your situation.";
             break;
           default:
             failureMessage += "An error occurred during verification. Please retry or contact support.";
