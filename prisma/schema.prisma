@@ -1,0 +1,67 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  discordId    String   
+  ipAddress    String
+  guildId      String
+  roleId       String
+  verifiedAt   DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@unique([discordId, guildId, roleId])
+  @@map("users")
+}
+
+model VerificationAttempt {
+  id          String   @id @default(cuid())
+  discordId   String
+  ipAddress   String
+  guildId     String
+  roleId      String
+  success     Boolean
+  reason      String?
+  createdAt   DateTime @default(now())
+  
+  @@map("verification_attempts")
+}
+
+model VerificationSession {
+  id          String   @id @default(cuid())
+  state       String   @unique
+  discordId   String?
+  guildId     String
+  channelId   String
+  roleId      String
+  webhookUrl  String?
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  
+  @@map("verification_sessions")
+}
+
+model DiscordToken {
+  id           String   @id @default(cuid())
+  discordId    String
+  accessToken  String
+  tokenType    String
+  refreshToken String?
+  expiresIn    Int?
+  scope        String?
+  ipAddress    String
+  guildId      String
+  createdAt    DateTime @default(now())
+  
+  @@map("discord_tokens")
+}
