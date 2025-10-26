@@ -17,6 +17,7 @@ You need:
 - Discord bot application
 - Domain or localhost for testing
 - API key from https://ipapi.is/
+- domain for redirect uri (https://freedns.afraid.org for free subdomains)
 
 ### Install and run
 Run `deploy.sh` then choose whether you want to run for production or development (`npm start`/`npm run dev`)
