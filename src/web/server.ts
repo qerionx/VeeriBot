@@ -18,7 +18,13 @@ export class WebServer {
   }
 
   private setupMiddleware() {
-    this.app.set('trust proxy', true);
+    // Config trust proxy SPECIFICALLY for cloudflare
+    this.app.set('trust proxy', ['loopback', 'linklocal', 'uniquelocal', 
+      '173.245.48.0/20', '103.21.244.0/22', '103.22.200.0/22', '103.31.4.0/22',
+      '141.101.64.0/18', '108.162.192.0/18', '190.93.240.0/20', '188.114.96.0/20',
+      '197.234.240.0/22', '198.41.128.0/17', '162.158.0.0/15', '104.16.0.0/13',
+      '104.24.0.0/14', '172.64.0.0/13', '131.0.72.0/22'
+    ]);
 
     this.app.use(helmet({
       contentSecurityPolicy: false,
@@ -33,6 +39,7 @@ export class WebServer {
       windowMs: 15 * 60 * 1000,
       max: 100,
       message: 'Too many requests from this ip, please try again later',
+      keyGenerator: (req) => this.getClientIP(req),
     });
     this.app.use(limiter);
 
@@ -40,6 +47,7 @@ export class WebServer {
       windowMs: 5 * 60 * 1000,
       max: 5,
       message: 'Too many verification attempts, you have been rate limited; Please wait and try again after 4-5 minutes. Please contact support if you continue to have issues.',
+      keyGenerator: (req) => this.getClientIP(req),
     });
     this.app.use('/verify', verifyLimiter);
 
@@ -406,8 +414,17 @@ export class WebServer {
   }
 
   private getClientIP(req: express.Request): string {
-    return (req.headers['x-forwarded-for'] as string)?.split(',')[0] ||
-           req.connection.remoteAddress ||
+    const cfConnectingIP = req.headers['cf-connecting-ip'] as string;
+    if (cfConnectingIP) {
+      return cfConnectingIP;
+    }
+    
+    const xForwardedFor = req.headers['x-forwarded-for'] as string;
+    if (xForwardedFor) {
+      return xForwardedFor.split(',')[0].trim();
+    }
+    
+    return req.connection.remoteAddress ||
            req.socket.remoteAddress ||
            '127.0.0.1';
   }
