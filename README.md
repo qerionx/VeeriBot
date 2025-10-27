@@ -1,6 +1,6 @@
-# VeeriBot
+<div align="center"><h1>VeeriBot</h1></div>
 
-A versatile Discord verification bot that stops alt accounts and VPN/proxy users from ruining your server.
+A simple, versatile Discord verification bot that stops alt accounts and VPN/proxy users from ruining your server. An open-source alternative to [Double Counter](https://doublecounter.gg/).
 
 ## What it does
 
@@ -9,7 +9,7 @@ A versatile Discord verification bot that stops alt accounts and VPN/proxy users
 - Lets you verify for different roles
 - Tracks all attempts so you can see whats happening :eyes:
 
-## Setup
+## How do I set this up?
 
 You need:
 - Node.js 
@@ -20,7 +20,7 @@ You need:
 - domain for redirect uri (https://freedns.afraid.org for free subdomains)
 
 ### Install and run
-Run `deploy.sh` then choose whether you want to run for production or development (`npm start`/`npm run dev`)
+Run `npm i && sh deploy.sh` then choose whether you want to run for production or development (`npm start`/`npm run dev`)
 
 ### Config
 Run `cp .env.example .env` then fill in all required values in `.env`
