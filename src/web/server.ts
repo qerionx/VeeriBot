@@ -39,7 +39,7 @@ export class WebServer {
     const verifyLimiter = rateLimit({
       windowMs: 5 * 60 * 1000,
       max: 5,
-      message: 'Too many verification attempts, you have been rate limited',
+      message: 'Too many verification attempts, you have been rate limited; Please wait and try again after 4-5 minutes. Please contact support if you continue to have issues.',
     });
     this.app.use('/verify', verifyLimiter);
 
