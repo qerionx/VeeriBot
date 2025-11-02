@@ -35,6 +35,13 @@ export const data = new SlashCommandBuilder()
       .setDescription('Webhook URL to log verification events (optional)')
       .setRequired(false)
   )
+  .addIntegerOption(option =>
+    option.setName('expiration')
+      .setDescription('Expiration time in minutes (0 = never expires, default = 30)')
+      .setRequired(false)
+      .setMinValue(0)
+      .setMaxValue(10080)
+  )
   .setDefaultMemberPermissions(PermissionFlagsBits.Administrator);
 
 export async function execute(interaction: ChatInputCommandInteraction) {
@@ -61,6 +68,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   const description = interaction.options.getString('description', true);
   const role = interaction.options.getRole('role', true);
   const webhookUrl = interaction.options.getString('webhookurl');
+  const expireMin = interaction.options.getInteger('expiration') ?? 30;
 
   const botMember = interaction.guild?.members.cache.get(interaction.client.user.id);
   if (!botMember) {
@@ -81,7 +89,9 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   }
 
   const state = uuidv4();
-  const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
+  const expiresAt = expireMin === 0 
+    ? new Date(Date.now() + 100 * 365 * 24 * 60 * 60 * 1000) // (100 urs)
+    : new Date(Date.now() + expireMin * 60 * 1000);
 
   try {
     await prisma.verificationSession.create({

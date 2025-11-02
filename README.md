@@ -27,6 +27,22 @@ Run `cp .env.example .env` then fill in all required values in `.env`
 
 ## Commands
 
-`/sendverificationembed title:whatever description:whatever role:@role webhookurl:optional`
+`/sendverificationembed title:whatever description:whatever role:@role webhookurl:optional expiration:optional`
 
 Creates a verification embed that users can click to verify for that specific role.
+
+### Arguments:
+- `title` - title of the verification embed
+- `description` - description text for the embed
+- `role` - role to grant upon successful verification
+- `webhookurl` (optional) - webhook URL to log verifications and failed attempts
+- `expiration` (optional) - expiration time in minutes (default: 30, use 0 for never expires)
+
+### Demo cmds:
+```
+/sendverificationembed title:"Verify for Access" description:"Click to verify your account" role:@Members
+
+/sendverificationembed title:"Premium Verification" description:"Verify for premium access" role:@Premium webhookurl:https://discord.com/api/webhooks/... expiration:120
+
+/sendverificationembed title:"Permanent Panel" description:"This panel never expires" role:@Verified expiration:0
+```

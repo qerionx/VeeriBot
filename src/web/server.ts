@@ -120,7 +120,7 @@ export class WebServer {
         
         const result = await this.processVerification(discordId, ipAddress, session);
         
-        await this.updateDiscordMessage(session, discordId, result);
+        await this.updateMsg(session, discordId, result);
         
         await prisma.verificationSession.delete({
           where: { state: state as string },
@@ -378,7 +378,7 @@ export class WebServer {
     }
   }
 
-  private async updateDiscordMessage(session: any, discordId: string, result: any) {
+  private async updateMsg(session: any, discordId: string, result: any) {
     try {
       let content: string;
       if (result.success || result.reason === 'already_had_role') {

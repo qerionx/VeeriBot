@@ -74,7 +74,8 @@ export class VerificationBot {
     try {
       const { v4: uuidv4 } = await import('uuid');
       const newState = uuidv4();
-      const expiresAt = new Date(Date.now() + 30 * 60 * 1000);      const originalSession = await prisma.verificationSession.findUnique({
+      
+      const originalSession = await prisma.verificationSession.findUnique({
         where: { state: originalState },
       });
 
@@ -85,6 +86,8 @@ export class VerificationBot {
         });
         return;
       }
+
+      const expiresAt = originalSession.expiresAt;
 
       await prisma.verificationSession.create({
         data: {
